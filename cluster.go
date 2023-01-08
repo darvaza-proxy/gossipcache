@@ -15,6 +15,7 @@ var (
 	_ ClusterConfigOption = WithGossipAdvertise("", 0)
 	_ ClusterConfigOption = WithGossipLogger(nil)
 	_ ClusterConfigOption = WithGossipKey("", []byte{})
+	_ ClusterConfigOption = WithGossipKeyBase64("", "")
 
 	_ ClusterConfigOption = WithDefaultLANConfig()
 	_ ClusterConfigOption = WithDefaultWANConfig()
