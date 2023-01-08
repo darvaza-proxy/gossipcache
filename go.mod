@@ -6,6 +6,7 @@ require (
 	github.com/darvaza-proxy/slog v0.0.0-20230107195728-4cab458b96a5
 	github.com/hashicorp/memberlist v0.5.0
 	github.com/mailgun/groupcache/v2 v2.4.2
+	github.com/pkg/errors v0.8.1
 )
 
 require (
