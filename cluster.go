@@ -293,8 +293,8 @@ func NewCluster(conf *memberlist.Config, options ...ClusterConfigOption) (*Clust
 		conf = memberlist.DefaultLANConfig()
 	}
 
-	cluster.config = *conf
-	cluster.delegate.cluster = &cluster
+	cluster.config = *conf              // copy memberlist.Config
+	cluster.delegate.cluster = &cluster // bind ClusterDelegate
 
 	for _, opt := range options {
 		if opt != nil {
