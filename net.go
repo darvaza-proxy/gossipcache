@@ -83,3 +83,22 @@ func GetIPAddresses(ifaces ...string) ([]netip.Addr, error) {
 
 	return out, nil
 }
+
+// GetStringIPAddresses returns IP addresses as string
+func GetStringIPAddresses(ifaces ...string) ([]string, error) {
+	addrs, err := GetIPAddresses(ifaces...)
+
+	out := make([]string, 0, len(addrs))
+	for _, addr := range addrs {
+
+		if addr.Is4In6() {
+			addr = addr.Unmap()
+		} else {
+			addr = addr.WithZone("")
+		}
+
+		out = append(out, addr.String())
+	}
+
+	return out, err
+}
