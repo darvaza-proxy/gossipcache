@@ -6,43 +6,48 @@ GOFMT ?= gofmt
 GOFMT_FLAGS = -w -l -s
 GOGENERATE_FLAGS = -v
 
+GOPATH ?= $(shell $(GO) env GOPATH)
 GOBIN ?= $(GOPATH)/bin
 
 REVIVE ?= $(GOBIN)/revive
 REVIVE_FLAGS ?= -formatter friendly
 REVIVE_INSTALL_URL ?= github.com/mgechev/revive
 
+V = 0
+Q = $(if $(filter 1,$V),,@)
+M = $(shell if [ "$$(tput colors 2> /dev/null || echo 0)" -ge 8 ]; then printf "\033[34;1m▶\033[0m"; else printf "▶"; fi)
+
 TMPDIR ?= .tmp
 
 all: get generate tidy build
 
-clean:
+clean: ; $(info $(M) cleaning…)
 	rm -rf $(TMPDIR)
 
-fmt:
-	@find . -name '*.go' | xargs -r $(GOFMT) $(GOFMT_FLAGS)
+fmt: ; $(info $(M) reformatting sources…)
+	$Q find . -name '*.go' | xargs -r $(GOFMT) $(GOFMT_FLAGS)
 
-tidy: fmt $(REVIVE)
-	$(GO) mod tidy
-	$(GO) vet ./...
-	$(REVIVE) $(REVIVE_RUN_ARGS) ./...
+tidy: | fmt $(REVIVE) ; $(info $(M) tidying up…)
+	$Q $(GO) mod tidy
+	$Q $(GO) vet ./...
+	$Q $(REVIVE) $(REVIVE_FLAGS) ./...
 
-get:
-	$(GO) get -v ./...
+get: ; $(info $(M) downloading dependencies…)
+	$Q $(GO) get -v ./...
 
-build:
-	$(GO) build -v ./...
+build: ; $(info $(M) building…)
+	$Q $(GO) build -v ./...
 
-test:
-	$(GO) test -v ./...
+test: ; $(info $(M) building…)
+	$Q $(GO) test -v ./...
 
-up:
-	$(GO) get -u -v ./...
-	$(GO) mod tidy
-	$(GO) install -v $(REVIVE_INSTALL_URL)
+up: ; $(info $(M) updating dependencies…)
+	$Q $(GO) get -u -v ./...
+	$Q $(GO) mod tidy
+	$Q $(GO) install -v $(REVIVE_INSTALL_URL)
 
-generate:
-	$(GO) generate $(GOGENERATE_FLAGS) ./...
+generate: ; $(info $(M) generating data…)
+	$Q git grep -l '^//go:generate' | sort -uV | xargs -r -n1 $(GO) generate $(GOGENERATE_FLAGS)
 
 $(REVIVE):
-	$(GO) install -v $(REVIVE_INSTALL_URL)
+	$Q $(GO) install -v $(REVIVE_INSTALL_URL)
