@@ -2,6 +2,7 @@ package gossipcache
 
 import (
 	"encoding/base64"
+	"os"
 	"time"
 
 	"github.com/darvaza-proxy/slog"
@@ -276,7 +277,7 @@ func WithMergeDelegate(handler func(*Cluster, []*memberlist.Node) error) Cluster
 // WithPingDelegate sets a callback to notify an observer how long it took for a ping
 // message to complete a round trip.
 //
-//	It can also be used for writing arbitrary byte slices into ack messages
+// It can also be used for writing arbitrary byte slices into ack messages
 func WithPingDelegate(payload []byte, completed func(*Cluster, *memberlist.Node, time.Duration, []byte)) ClusterConfigOption {
 	opt := func(cluster *Cluster, conf *memberlist.Config) error {
 		delegate := &cluster.delegate
@@ -302,8 +303,8 @@ func WithAliveDelegate(handler func(*Cluster, *memberlist.Node) error) ClusterCo
 	return opt
 }
 
-// NewCluster creates a new memberlist cluster for GossipCache
-func NewCluster(conf *memberlist.Config, options ...ClusterConfigOption) (*Cluster, error) {
+// Prepare prepares a Cluster to be created
+func Prepare(conf *memberlist.Config, options ...ClusterConfigOption) (*Cluster, *memberlist.Config, error) {
 	var cluster Cluster
 
 	if conf == nil {
@@ -317,20 +318,50 @@ func NewCluster(conf *memberlist.Config, options ...ClusterConfigOption) (*Clust
 		if opt != nil {
 			if err := opt(&cluster, &cluster.config); err != nil {
 				// failed to apply configuration option
-				return nil, err
+				return nil, nil, err
 			}
 		}
 	}
 
+	return &cluster, &cluster.config, nil
+}
+
+// Create finishes the creation the Cluster. Only to be used after calling Prepare()
+func (cluster *Cluster) Create() error {
+	if cluster.delegate.cluster != cluster {
+		return os.ErrInvalid
+	} else if cluster.members != nil {
+		return os.ErrExist
+	}
+
 	ml, err := memberlist.Create(&cluster.config)
+	if err != nil {
+		// failed to create cluster
+		return err
+	}
+
+	// ready
+	cluster.members = ml
+	return nil
+}
+
+// NewCluster creates a new memberlist cluster for GossipCache
+func NewCluster(conf *memberlist.Config, options ...ClusterConfigOption) (*Cluster, error) {
+
+	cluster, _, err := Prepare(conf, options...)
+	if err != nil {
+		// failed to prepare
+		return nil, err
+	}
+
+	err = cluster.Create()
 	if err != nil {
 		// failed to create cluster
 		return nil, err
 	}
 
 	// ready
-	cluster.members = ml
-	return &cluster, nil
+	return cluster, nil
 }
 
 // ClusterDelegate hooks handlers into the Memberlist Cluster life cycle
