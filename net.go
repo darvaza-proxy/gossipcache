@@ -69,18 +69,14 @@ func GetIPAddresses(ifaces ...string) ([]netip.Addr, error) {
 			return out, err
 		}
 
-		for _, addr := range addrs {
-			var s []byte
-
-			switch v := addr.(type) {
-			case *net.IPAddr:
-				s = v.IP
-			case *net.IPNet:
-				s = v.IP
+		for _, netAddr := range addrs {
+			addr, err := netip.ParseAddr(netAddr.String())
+			if err != nil {
+				return out, err
 			}
 
-			if ip, ok := netip.AddrFromSlice(s); ok {
-				out = append(out, ip)
+			if addr.IsValid() {
+				out = append(out, addr)
 			}
 		}
 	}
