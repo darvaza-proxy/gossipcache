@@ -1,4 +1,4 @@
-package gossipcache
+package transport
 
 import (
 	"net"
