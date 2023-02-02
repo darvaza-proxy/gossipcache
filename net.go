@@ -69,7 +69,7 @@ func GetIPAddresses(ifaces ...string) ([]netip.Addr, error) {
 			}
 
 			if ip, ok := netip.AddrFromSlice(s); ok {
-				out = append(out, ip)
+				out = append(out, ip.Unmap())
 			}
 		}
 	}
@@ -83,14 +83,9 @@ func GetStringIPAddresses(ifaces ...string) ([]string, error) {
 
 	out := make([]string, 0, len(addrs))
 	for _, addr := range addrs {
-
-		if addr.Is4In6() {
-			addr = addr.Unmap()
-		} else {
-			addr = addr.WithZone("")
+		if addr.IsValid() {
+			out = append(out, addr.String())
 		}
-
-		out = append(out, addr.String())
 	}
 
 	return out, err
