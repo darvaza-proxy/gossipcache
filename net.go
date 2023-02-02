@@ -58,23 +58,29 @@ func GetIPAddresses(ifaces ...string) ([]netip.Addr, error) {
 			return out, err
 		}
 
-		for _, addr := range addrs {
-			var s []byte
-
-			switch v := addr.(type) {
-			case *net.IPAddr:
-				s = v.IP
-			case *net.IPNet:
-				s = v.IP
-			}
-
-			if ip, ok := netip.AddrFromSlice(s); ok {
-				out = append(out, ip.Unmap())
-			}
-		}
+		out = appendNetIPAsIP(out, addrs...)
 	}
 
 	return out, nil
+}
+
+func appendNetIPAsIP(out []netip.Addr, addrs ...net.Addr) []netip.Addr {
+	for _, addr := range addrs {
+		var s []byte
+
+		switch v := addr.(type) {
+		case *net.IPAddr:
+			s = v.IP
+		case *net.IPNet:
+			s = v.IP
+		}
+
+		if ip, ok := netip.AddrFromSlice(s); ok {
+			out = append(out, ip.Unmap())
+		}
+	}
+
+	return out
 }
 
 // GetStringIPAddresses returns IP addresses as string
