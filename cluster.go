@@ -21,6 +21,7 @@ var (
 	_ ClusterConfigOption = WithDefaultLANConfig()
 	_ ClusterConfigOption = WithDefaultWANConfig()
 	_ ClusterConfigOption = WithDefaultLocalConfig()
+	_ ClusterConfigOption = WithTransport(nil)
 
 	_ ClusterConfigOption = WithDelegateProtocolVersion(0, 0, 0)
 	_ ClusterConfigOption = WithNodeMetaDelegate(nil)
@@ -89,6 +90,18 @@ func WithGossipAdvertise(host string, port int16) ClusterConfigOption {
 func WithGossipLogger(logger slog.Logger) ClusterConfigOption {
 	opt := func(_ *Cluster, conf *memberlist.Config) error {
 		return SetMemberlistLogger(conf, logger)
+	}
+	return opt
+}
+
+// WithTransport creates a configuration option to set the cluster's transport
+func WithTransport(transport memberlist.Transport) ClusterConfigOption {
+	opt := func(_ *Cluster, conf *memberlist.Config) error {
+		if transport == nil {
+			return errors.New("invalid transport")
+		}
+		conf.Transport = transport
+		return nil
 	}
 	return opt
 }
