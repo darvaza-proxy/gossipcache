@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	github.com/darvaza-proxy/slog v0.2.0
+	github.com/darvaza-proxy/slog/handlers/discard v0.2.0
 	github.com/hashicorp/memberlist v0.5.0
 	github.com/mailgun/groupcache/v2 v2.4.2
 	github.com/mgechev/revive v1.2.5
