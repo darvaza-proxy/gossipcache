@@ -3,10 +3,10 @@ module github.com/darvaza-proxy/gossipcache
 go 1.19
 
 require (
-	github.com/darvaza-proxy/slog v0.0.1
+	github.com/darvaza-proxy/slog v0.2.0
 	github.com/hashicorp/memberlist v0.5.0
 	github.com/mailgun/groupcache/v2 v2.4.2
-	github.com/pkg/errors v0.8.1
+	github.com/pkg/errors v0.9.1
 )
 
 require (
@@ -23,10 +23,10 @@ require (
 	github.com/sean-/seed v0.0.0-20170313163322-e2103e2c3529 // indirect
 	github.com/segmentio/fasthash v1.0.3 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect
-	golang.org/x/mod v0.7.0 // indirect
-	golang.org/x/net v0.5.0 // indirect
-	golang.org/x/sys v0.4.0 // indirect
-	golang.org/x/tools v0.5.0 // indirect
+	golang.org/x/mod v0.8.0 // indirect
+	golang.org/x/net v0.7.0 // indirect
+	golang.org/x/sys v0.5.0 // indirect
+	golang.org/x/tools v0.6.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 )
