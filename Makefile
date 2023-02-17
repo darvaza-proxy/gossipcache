@@ -40,6 +40,7 @@ tidy: | fmt $(REVIVE) ; $(info $(M) tidying up…)
 
 get: ; $(info $(M) downloading dependencies…)
 	$Q $(GO) get -v ./...
+	$Q $(GO) install -v $(REVIVE_INSTALL_URL)
 
 build: ; $(info $(M) building…)
 	$Q $(GO) build -v ./...
