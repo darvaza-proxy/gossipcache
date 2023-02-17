@@ -61,10 +61,10 @@ func (t *Transport) listen(addrs []net.IP, port int, config *Config) (int, error
 	defer func() {
 		if !ok {
 			for _, tcpLn := range tcpListeners {
-				tcpLn.Close()
+				_ = tcpLn.Close()
 			}
 			for _, udpLn := range udpListeners {
-				udpLn.Close()
+				_ = udpLn.Close()
 			}
 		}
 	}()

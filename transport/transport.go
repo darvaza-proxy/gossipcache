@@ -98,11 +98,11 @@ func (t *Transport) Shutdown() error {
 
 		// close ports
 		for i := range t.tcpListeners {
-			t.tcpListeners[i].Close()
+			_ = t.tcpListeners[i].Close()
 		}
 
 		for i := range t.udpListeners {
-			t.udpListeners[i].Close()
+			_ = t.udpListeners[i].Close()
 		}
 	}
 

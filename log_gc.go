@@ -16,7 +16,7 @@ type GroupCacheLogger struct {
 }
 
 // Printf logs a message under a previously set level and with previously set fields
-func (gcl *GroupCacheLogger) Printf(format string, args ...interface{}) {
+func (gcl *GroupCacheLogger) Printf(format string, args ...any) {
 	gcl.logger.Printf(format, args...)
 }
 
@@ -63,7 +63,7 @@ func (gcl *GroupCacheLogger) StringField(label string, val string) groupcache.Lo
 }
 
 // WithFields creates a new logger context with a set of new fields of arbitrary value
-func (gcl *GroupCacheLogger) WithFields(fields map[string]interface{}) groupcache.Logger {
+func (gcl *GroupCacheLogger) WithFields(fields map[string]any) groupcache.Logger {
 	return &GroupCacheLogger{
 		logger: gcl.logger.WithFields(fields),
 	}

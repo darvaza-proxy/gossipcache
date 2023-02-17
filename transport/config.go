@@ -43,7 +43,6 @@ type Config struct {
 // SetDefaults attempts to fill any configuration gap, specially
 // the IP Addresses when interfaces are provided instead
 func (cfg *Config) SetDefaults() error {
-
 	// BindAddress, maybe via BindInterface
 	if len(cfg.BindAddress) == 0 {
 		var addrs []string

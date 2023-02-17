@@ -9,7 +9,8 @@ import (
 )
 
 // DialAddressTimeout is used by memberlist to establish a TCP connection to a particular node
-func (*Transport) DialAddressTimeout(addr memberlist.Address, timeout time.Duration) (net.Conn, error) {
+func (*Transport) DialAddressTimeout(addr memberlist.Address, timeout time.Duration) (
+	net.Conn, error) {
 	dialer := net.Dialer{
 		Timeout: timeout,
 	}
@@ -62,16 +63,13 @@ func (t *Transport) tcpLoop(ctx context.Context, ln *net.TCPListener) {
 					WithField(RemoteAddrLabel, conn.RemoteAddr()).
 					Print("Connection Terminated")
 
-				conn.Close()
+				_ = conn.Close()
 				return
 			}
-
 		} else if t.cancelled.Load() {
 			// shutdown in process, ignore error and exit
 			return
-
 		} else {
-
 			if errorDelay == 0 {
 				// first
 				errorDelay = baseDelay

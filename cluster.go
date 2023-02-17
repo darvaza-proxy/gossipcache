@@ -249,7 +249,8 @@ func WithMergeRemoteStateDelegate(handler func(*Cluster, []byte, bool)) ClusterC
 }
 
 // WithEventDelegate sets a callback to receive notifications about members joining and leaving
-func WithEventDelegate(handler func(*Cluster, *memberlist.Node, memberlist.NodeEventType)) ClusterConfigOption {
+func WithEventDelegate(handler func(*Cluster,
+	*memberlist.Node, memberlist.NodeEventType)) ClusterConfigOption {
 	opt := func(cluster *Cluster, conf *memberlist.Config) error {
 		delegate := &cluster.delegate
 		delegate.event = handler
@@ -257,20 +258,22 @@ func WithEventDelegate(handler func(*Cluster, *memberlist.Node, memberlist.NodeE
 		conf.Events = delegate
 		return nil
 	}
+
 	return opt
 }
 
-// WithConflictDelegate sets a callback to receive notifications about an attempt to join with a name
-// already in use
-func WithConflictDelegate(handler func(*Cluster, *memberlist.Node, *memberlist.Node)) ClusterConfigOption {
+// WithConflictDelegate sets a callback to receive notifications about an
+// attempt to join with a name already in use
+func WithConflictDelegate(handler func(*Cluster,
+	*memberlist.Node, *memberlist.Node)) ClusterConfigOption {
 	opt := func(cluster *Cluster, conf *memberlist.Config) error {
 		delegate := &cluster.delegate
 		delegate.conflict = handler
 
 		conf.Conflict = delegate
 		return nil
-
 	}
+
 	return opt
 }
 
@@ -291,7 +294,8 @@ func WithMergeDelegate(handler func(*Cluster, []*memberlist.Node) error) Cluster
 // message to complete a round trip.
 //
 // It can also be used for writing arbitrary byte slices into ack messages
-func WithPingDelegate(payload []byte, completed func(*Cluster, *memberlist.Node, time.Duration, []byte)) ClusterConfigOption {
+func WithPingDelegate(payload []byte,
+	completed func(*Cluster, *memberlist.Node, time.Duration, []byte)) ClusterConfigOption {
 	opt := func(cluster *Cluster, conf *memberlist.Config) error {
 		delegate := &cluster.delegate
 		delegate.ackPayload = payload
@@ -300,10 +304,12 @@ func WithPingDelegate(payload []byte, completed func(*Cluster, *memberlist.Node,
 		conf.Ping = delegate
 		return nil
 	}
+
 	return opt
 }
 
-// WithAliveDelegate sets a callback to be invoked when a message about a live node is received from the network.
+// WithAliveDelegate sets a callback to be invoked when a message about a
+// live node is received from the network.
 // Returning a non-nil error prevents the node from being considered a peer
 func WithAliveDelegate(handler func(*Cluster, *memberlist.Node) error) ClusterConfigOption {
 	opt := func(cluster *Cluster, conf *memberlist.Config) error {
@@ -317,7 +323,8 @@ func WithAliveDelegate(handler func(*Cluster, *memberlist.Node) error) ClusterCo
 }
 
 // Prepare prepares a Cluster to be created
-func Prepare(conf *memberlist.Config, options ...ClusterConfigOption) (*Cluster, *memberlist.Config, error) {
+func Prepare(conf *memberlist.Config, options ...ClusterConfigOption) (
+	*Cluster, *memberlist.Config, error) {
 	var cluster Cluster
 
 	if conf == nil {
@@ -360,7 +367,6 @@ func (cluster *Cluster) Create() error {
 
 // NewCluster creates a new memberlist cluster for GossipCache
 func NewCluster(conf *memberlist.Config, options ...ClusterConfigOption) (*Cluster, error) {
-
 	cluster, _, err := Prepare(conf, options...)
 	if err != nil {
 		// failed to prepare
@@ -482,7 +488,8 @@ func (cd *ClusterDelegate) AckPayload() []byte {
 }
 
 // NotifyPingComplete is invoked when an ack for a ping is received
-func (cd *ClusterDelegate) NotifyPingComplete(peer *memberlist.Node, rtt time.Duration, payload []byte) {
+func (cd *ClusterDelegate) NotifyPingComplete(peer *memberlist.Node,
+	rtt time.Duration, payload []byte) {
 	if fn := cd.pingComplete; fn != nil {
 		fn(cd.cluster, peer, rtt, payload)
 	}
