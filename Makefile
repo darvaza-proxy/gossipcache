@@ -9,8 +9,14 @@ GOGENERATE_FLAGS = -v
 GOPATH ?= $(shell $(GO) env GOPATH)
 GOBIN ?= $(GOPATH)/bin
 
+PEDANTIC ?= 0
+ifeq ($(PEDANTIC),1)
+    REVIVE_CONF ?= $(CURDIR)/tools/revive-pedantic.toml
+else
+    REVIVE_CONF ?= $(CURDIR)/tools/revive-default.toml
+endif
 REVIVE ?= $(GOBIN)/revive
-REVIVE_FLAGS ?= -formatter friendly -set_exit_status
+REVIVE_RUN_ARGS ?= -config $(REVIVE_CONF) -formatter friendly
 REVIVE_INSTALL_URL ?= github.com/mgechev/revive
 
 V = 0
@@ -30,7 +36,7 @@ fmt: ; $(info $(M) reformatting sources…)
 tidy: | fmt $(REVIVE) ; $(info $(M) tidying up…)
 	$Q $(GO) mod tidy
 	$Q $(GO) vet ./...
-	$Q $(REVIVE) $(REVIVE_FLAGS) ./...
+	$Q $(REVIVE) $(REVIVE_RUN_ARGS) ./...
 
 get: ; $(info $(M) downloading dependencies…)
 	$Q $(GO) get -v ./...
