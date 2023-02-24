@@ -61,7 +61,7 @@ func (cfg *Config) SetDefaults() error {
 		}
 
 		if len(addrs) == 0 {
-			cfg.BindAddress = []string{"0"}
+			cfg.BindAddress = []string{"0.0.0.0"}
 		}
 	}
 
@@ -98,11 +98,21 @@ func (cfg *Config) Addresses() ([]net.IP, error) {
 	out := make([]net.IP, n)
 
 	for i, s := range cfg.BindAddress {
+		var addr netip.Addr
 		var ip net.IP
 
-		addr, err := netip.ParseAddr(s)
-		if err != nil {
-			return out, err
+		switch s {
+		case "0":
+			addr = netip.IPv4Unspecified()
+		case "::":
+			addr = netip.IPv6Unspecified()
+		default:
+			var err error
+
+			addr, err = netip.ParseAddr(s)
+			if err != nil {
+				return out, err
+			}
 		}
 
 		addr = addr.Unmap()
