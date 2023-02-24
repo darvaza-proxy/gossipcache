@@ -2,12 +2,12 @@ package gossipcache
 
 import (
 	"encoding/base64"
+	"errors"
 	"os"
 	"time"
 
 	"github.com/darvaza-proxy/slog"
 	"github.com/hashicorp/memberlist"
-	"github.com/pkg/errors"
 )
 
 var (
@@ -111,7 +111,7 @@ func WithGossipKeyBase64(salt, key string) ClusterConfigOption {
 	bkey, err := base64.RawStdEncoding.DecodeString(key)
 	if err != nil {
 		// failed to decode key
-		err = errors.Wrap(err, "WithGossipKeyBase64")
+		err = slog.Wrap(err, "WithGossipKeyBase64")
 
 		return func(_ *Cluster, _ *memberlist.Config) error {
 			return err
