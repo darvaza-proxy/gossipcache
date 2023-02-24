@@ -5,6 +5,8 @@ import (
 	"net/netip"
 )
 
+// revive:disable:cognitive-complexity
+
 // GetInterfacesNames returns the list of interfaces,
 // considering an optional exclusion list
 func GetInterfacesNames(except ...string) ([]string, error) {
@@ -32,6 +34,8 @@ func GetInterfacesNames(except ...string) ([]string, error) {
 
 	return out, nil
 }
+
+// revive:enable:cognitive-complexity
 
 // GetIPAddresses returns the list of IP Addresses,
 // optionally considering only the given interfaces

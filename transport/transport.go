@@ -33,6 +33,8 @@ type Transport struct {
 	packetCh     chan *memberlist.Packet
 }
 
+// revive:disable:cognitive-complexity
+
 // New creates a new Transport based on the given configuration
 // or defaults.
 func New(config *Config) (*Transport, error) {

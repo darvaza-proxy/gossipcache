@@ -48,6 +48,8 @@ func (t *Transport) tryListen(pass int, addrs []net.IP, port int, config *Config
 	return t.listen(addrs, port, config)
 }
 
+// revive:disable:cognitive-complexity
+
 // listen attempts to listen all addresses on a given port,
 // and on success the listeners are stored on the Transport
 func (t *Transport) listen(addrs []net.IP, port int, config *Config) (int, error) {

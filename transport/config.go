@@ -40,6 +40,9 @@ type Config struct {
 	Logger slog.Logger
 }
 
+// revive:disable:cyclomatic
+// revive:disable:cognitive-complexity
+
 // SetDefaults attempts to fill any configuration gap, specially
 // the IP Addresses when interfaces are provided instead
 func (cfg *Config) SetDefaults() error {

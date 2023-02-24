@@ -56,6 +56,8 @@ func (t *Transport) PacketCh() <-chan *memberlist.Packet {
 	return t.packetCh
 }
 
+// revive:disable:cognitive-complexity
+
 // udpLoop is the main routine of the UDP listening workers
 func (t *Transport) udpLoop(ctx context.Context, ln *net.UDPConn) {
 	// we explicitly close the listener because we could be interrupted
