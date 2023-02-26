@@ -34,6 +34,8 @@ func (t *Transport) StreamCh() <-chan net.Conn {
 
 // tcpLoop is the main routine of the TCP listening workers
 func (t *Transport) tcpLoop(ctx context.Context, ln *net.TCPListener) {
+	// revive:enable:cognitive-complexity
+
 	// we explicitly close the listener because we could be interrupted
 	// by the cancellation of the parent Context instead of Shutdown()
 	defer ln.Close()

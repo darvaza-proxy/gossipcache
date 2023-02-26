@@ -53,6 +53,7 @@ func (t *Transport) tryListen(pass int, addrs []net.IP, port int, config *Config
 // listen attempts to listen all addresses on a given port,
 // and on success the listeners are stored on the Transport
 func (t *Transport) listen(addrs []net.IP, port int, config *Config) (int, error) {
+	// revive:enable:cognitive-complexity
 	var ok bool
 
 	n := len(addrs)
