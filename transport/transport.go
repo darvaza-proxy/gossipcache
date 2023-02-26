@@ -39,6 +39,8 @@ type Transport struct {
 // New creates a new Transport based on the given configuration
 // or defaults.
 func New(config *Config) (*Transport, error) {
+	// revive:enable:cognitive-complexity
+
 	if config == nil {
 		config = &Config{}
 	}
@@ -119,59 +121,65 @@ func (t *Transport) FinalAdvertiseAddr(ip string, port int) (net.IP, int, error)
 	var err error
 
 	if ip != "" {
-		var givenAddr net.IP
-
 		// use the given address
-		addr, err := netip.ParseAddr(ip)
-		if err != nil {
-			return nil, 0, err
-		}
-
-		addr = addr.Unmap()
-		if addr.Is4() {
-			a4 := addr.As4()
-			givenAddr = a4[:]
-		} else {
-			a16 := addr.As16()
-			givenAddr = a16[:]
-		}
-
-		return givenAddr, port, nil
+		return parseGivenAdvertiseAddr(ip, port)
 	}
 
 	tcpAddr := t.tcpListeners[0].Addr().(*net.TCPAddr)
 	if tcpAddr.IP.IsUnspecified() {
-		var addrs []netip.Addr
-
-		// listening all addresses, pick one
-		ifaces, _ := core.GetInterfacesNames("lo")
-		if len(ifaces) > 0 {
-			addrs, _ = core.GetIPAddresses(ifaces...)
-		}
-		if len(addrs) == 0 {
-			addrs, err = core.GetIPAddresses()
-		}
-
-		if len(addrs) > 0 {
-			addr := addrs[0].Unmap()
-			if addr.Is4() {
-				a4 := addr.As4()
-				tcpAddr.IP = a4[:]
-			} else {
-				a16 := addr.As16()
-				tcpAddr.IP = a16[:]
-			}
-
-			err = nil
-		} else {
+		addr, err := getAdvertiseAddr()
+		if addr == nil {
+			// log failure
 			s := "Failed to get IP Address to advertise"
 			t.error(err).Print(s)
 
 			if err == nil {
 				err = errors.New(s)
 			}
+			return nil, 0, err
 		}
+		tcpAddr.IP = addr
 	}
 
 	return tcpAddr.IP, tcpAddr.Port, err
+}
+
+func parseGivenAdvertiseAddr(ip string, port int) (net.IP, int, error) {
+	addr, err := core.ParseAddr(ip)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return addrAsNetIP(addr.Unmap()), port, nil
+}
+
+func getAdvertiseAddr() (net.IP, error) {
+	var addrs []netip.Addr
+	var err error
+
+	// listening all addresses, pick one
+	ifaces, _ := core.GetInterfacesNames("lo")
+	if len(ifaces) > 0 {
+		addrs, _ = core.GetIPAddresses(ifaces...)
+	}
+	if len(addrs) == 0 {
+		addrs, err = core.GetIPAddresses()
+	}
+
+	if len(addrs) > 0 {
+		// pick the first
+		return addrAsNetIP(addrs[0].Unmap()), nil
+	}
+
+	return nil, err
+}
+
+func addrAsNetIP(addr netip.Addr) net.IP {
+	if addr.Is4() {
+		a4 := addr.As4()
+		return a4[:]
+	}
+
+	a16 := addr.As16()
+	return a16[:]
 }
