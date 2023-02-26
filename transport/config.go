@@ -3,7 +3,6 @@ package transport
 import (
 	"context"
 	"net"
-	"net/netip"
 
 	"github.com/darvaza-proxy/core"
 	"github.com/darvaza-proxy/slog"
@@ -41,29 +40,20 @@ type Config struct {
 	Logger slog.Logger
 }
 
-// revive:disable:cyclomatic
 // revive:disable:cognitive-complexity
 
 // SetDefaults attempts to fill any configuration gap, specially
 // the IP Addresses when interfaces are provided instead
 func (cfg *Config) SetDefaults() error {
+	// revive:enable:cognitive-complexity
+
 	// BindAddress, maybe via BindInterface
 	if len(cfg.BindAddress) == 0 {
-		var addrs []string
-		var err error
-
-		if len(cfg.BindInterface) > 0 {
-			// All addresses of given interfaces
-			addrs, err = core.GetStringIPAddresses(cfg.BindInterface...)
-			if len(addrs) == 0 && err != nil {
-				// Error and no address, no luck
-				return err
-			}
+		addrs, err := cfg.getStringIPAddresses()
+		if err != nil {
+			return err
 		}
-
-		if len(addrs) == 0 {
-			cfg.BindAddress = []string{"0.0.0.0"}
-		}
+		cfg.BindAddress = addrs
 	}
 
 	// BindPort
@@ -93,36 +83,24 @@ func (cfg *Config) SetDefaults() error {
 	return nil
 }
 
+func (cfg *Config) getStringIPAddresses() ([]string, error) {
+	if len(cfg.BindInterface) > 0 {
+		// All addresses of given interfaces
+		return core.GetStringIPAddresses(cfg.BindInterface...)
+	}
+
+	return []string{"0.0.0.0"}, nil
+}
+
 // Addresses returns the BindAddress list parsed into net.IP
 func (cfg *Config) Addresses() ([]net.IP, error) {
 	n := len(cfg.BindAddress)
 	out := make([]net.IP, n)
 
 	for i, s := range cfg.BindAddress {
-		var addr netip.Addr
-		var ip net.IP
-
-		switch s {
-		case "0":
-			addr = netip.IPv4Unspecified()
-		case "::":
-			addr = netip.IPv6Unspecified()
-		default:
-			var err error
-
-			addr, err = netip.ParseAddr(s)
-			if err != nil {
-				return out, err
-			}
-		}
-
-		addr = addr.Unmap()
-		if addr.Is4() {
-			a4 := addr.As4()
-			ip = a4[:]
-		} else {
-			a16 := addr.As16()
-			ip = a16[:]
+		ip, err := core.ParseNetIP(s)
+		if err != nil {
+			return out, err
 		}
 
 		out[i] = ip
