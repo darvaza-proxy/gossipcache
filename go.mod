@@ -3,6 +3,7 @@ module github.com/darvaza-proxy/gossipcache
 go 1.19
 
 require (
+	github.com/darvaza-proxy/core v0.1.0
 	github.com/darvaza-proxy/slog v0.4.0
 	github.com/darvaza-proxy/slog/handlers/discard v0.2.1
 	github.com/hashicorp/memberlist v0.5.0

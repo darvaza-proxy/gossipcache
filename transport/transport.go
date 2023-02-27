@@ -9,6 +9,7 @@ import (
 	"sync"
 	"sync/atomic"
 
+	"github.com/darvaza-proxy/core"
 	"github.com/darvaza-proxy/slog"
 	"github.com/hashicorp/memberlist"
 )
@@ -143,12 +144,12 @@ func (t *Transport) FinalAdvertiseAddr(ip string, port int) (net.IP, int, error)
 		var addrs []netip.Addr
 
 		// listening all addresses, pick one
-		ifaces, _ := GetInterfacesNames("lo")
+		ifaces, _ := core.GetInterfacesNames("lo")
 		if len(ifaces) > 0 {
-			addrs, _ = GetIPAddresses(ifaces...)
+			addrs, _ = core.GetIPAddresses(ifaces...)
 		}
 		if len(addrs) == 0 {
-			addrs, err = GetIPAddresses()
+			addrs, err = core.GetIPAddresses()
 		}
 
 		if len(addrs) > 0 {

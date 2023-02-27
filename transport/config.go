@@ -5,6 +5,7 @@ import (
 	"net"
 	"net/netip"
 
+	"github.com/darvaza-proxy/core"
 	"github.com/darvaza-proxy/slog"
 	"github.com/darvaza-proxy/slog/handlers/discard"
 )
@@ -53,7 +54,7 @@ func (cfg *Config) SetDefaults() error {
 
 		if len(cfg.BindInterface) > 0 {
 			// All addresses of given interfaces
-			addrs, err = GetStringIPAddresses(cfg.BindInterface...)
+			addrs, err = core.GetStringIPAddresses(cfg.BindInterface...)
 			if len(addrs) == 0 && err != nil {
 				// Error and no address, no luck
 				return err
