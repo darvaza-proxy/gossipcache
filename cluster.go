@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/darvaza-proxy/core"
 	"github.com/darvaza-proxy/slog"
 	"github.com/hashicorp/memberlist"
 )
@@ -111,7 +112,7 @@ func WithGossipKeyBase64(salt, key string) ClusterConfigOption {
 	bkey, err := base64.RawStdEncoding.DecodeString(key)
 	if err != nil {
 		// failed to decode key
-		err = slog.Wrap(err, "WithGossipKeyBase64")
+		err = core.Wrap(err, "WithGossipKeyBase64")
 
 		return func(_ *Cluster, _ *memberlist.Config) error {
 			return err
