@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net"
+	"net/netip"
 	"net/url"
 
 	"github.com/darvaza-proxy/core"
@@ -151,4 +152,26 @@ func PrepareCacheBaseURL(s string) (string, error) {
 	u.Fragment = ""
 
 	return u.String(), nil
+}
+
+// InferCacheBaseURL produces a CacheBaseURL pointing to https on 443/tcp of
+// Transport's AdveriseAddr
+func InferCacheBaseURL(cfg *memberlist.Config) (string, error) {
+	var s string
+
+	ip, _, err := cfg.Transport.FinalAdvertiseAddr(cfg.AdvertiseAddr, 0)
+	if err != nil {
+		return "", err
+	}
+	addr, _ := netip.AddrFromSlice(ip)
+	addr.Unmap()
+	addr.WithZone("")
+
+	if addr.Is6() {
+		s = fmt.Sprintf("[%s]", addr.String())
+	} else {
+		s = addr.String()
+	}
+
+	return "https://" + s, nil
 }
