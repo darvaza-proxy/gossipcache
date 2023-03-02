@@ -34,6 +34,10 @@ type Config struct {
 	// ListenUDP is the helper to use to listen on a UDP port
 	ListenUDP func(network string, laddr *net.UDPAddr) (*net.UDPConn, error)
 
+	// OnError is called when a worker returns an error, before initiating
+	// a shutdown
+	OnError func(error)
+
 	// Context
 	Context context.Context
 	// Logger is the optional logger to record events

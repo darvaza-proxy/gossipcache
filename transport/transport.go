@@ -24,6 +24,7 @@ type Transport struct {
 	wg        core.WaitGroup
 	cancel    context.CancelFunc
 	cancelled atomic.Bool
+	onError   func(err error)
 	log       slog.Logger
 
 	tcpListeners []*net.TCPListener
@@ -51,8 +52,9 @@ func New(config *Config) (*Transport, error) {
 	ctx, cancel := context.WithCancel(config.Context)
 
 	t := &Transport{
-		cancel: cancel,
-		log:    config.Logger,
+		cancel:  cancel,
+		log:     config.Logger,
+		onError: config.OnError,
 
 		streamCh: make(chan net.Conn),
 		packetCh: make(chan *memberlist.Packet),
@@ -70,6 +72,19 @@ func New(config *Config) (*Transport, error) {
 	} else if n < 1 {
 		return nil, errors.New("no listening ports")
 	}
+
+	t.wg.OnError(func(err error) error {
+		var c core.Catcher
+
+		defer t.initiateShutdown()
+
+		c.Try(func() error {
+			t.onError(err)
+			return nil
+		})
+
+		return err
+	})
 
 	// and start
 	for i := range t.tcpListeners {
@@ -92,6 +107,13 @@ func New(config *Config) (*Transport, error) {
 // cancels the workers, and then waits until
 // all workers have exited
 func (t *Transport) Shutdown() error {
+	t.initiateShutdown()
+
+	t.wg.Wait()
+	return nil
+}
+
+func (t *Transport) initiateShutdown() {
 	if t.cancelled.CompareAndSwap(false, true) {
 		// stop workers
 		t.cancel()
@@ -105,9 +127,6 @@ func (t *Transport) Shutdown() error {
 			_ = t.udpListeners[i].Close()
 		}
 	}
-
-	t.wg.Wait()
-	return nil
 }
 
 // FinalAdvertiseAddr is used by memberlist to find what address and port to
