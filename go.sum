@@ -18,8 +18,8 @@ github.com/chavacava/garif v0.0.0-20230227094218-b8c73b2037b8 h1:W9o46d2kbNL06lq
 github.com/chavacava/garif v0.0.0-20230227094218-b8c73b2037b8/go.mod h1:gakxgyXaaPkxvLw1XQxNGK4I37ys9iBRzNUx/B7pUCo=
 github.com/circonus-labs/circonus-gometrics v2.3.1+incompatible/go.mod h1:nmEj6Dob7S7YxXgwXpfOuvO54S+tGdZdw9fuRZt25Ag=
 github.com/circonus-labs/circonusllhist v0.1.3/go.mod h1:kMXHVDlOchFAehlya5ePtbp5jckzBHf4XRpQvBOLI+I=
-github.com/darvaza-proxy/core v0.2.0 h1:wGcuZXXDOyPeIbNzGIF2mT+fJ4AMHzsKlsmHp20iER4=
-github.com/darvaza-proxy/core v0.2.0/go.mod h1:ZImPFrOKEzwDTU5vS9dC7QpBAzl+3I8XhtnCkB6l5Ss=
+github.com/darvaza-proxy/core v0.4.0 h1:lggmN5CO22R0DPmNjOTT5A/hafzWjcKfKhC9hOL6A6E=
+github.com/darvaza-proxy/core v0.4.0/go.mod h1:ZImPFrOKEzwDTU5vS9dC7QpBAzl+3I8XhtnCkB6l5Ss=
 github.com/darvaza-proxy/slog v0.4.4 h1:zopOiHIAE3deKlFjDa/qlXBT0awaJv5X5GnH1yxXL0w=
 github.com/darvaza-proxy/slog v0.4.4/go.mod h1:uW4oSt8Fs803dQxHwi0VoJK66M40JE0YNXdYmo/mmTM=
 github.com/darvaza-proxy/slog/handlers/discard v0.2.2 h1:v3abgKCP2Qq6ui5V1bAA7s04KIdxt1IqVyIMGERElyE=

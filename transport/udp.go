@@ -59,7 +59,7 @@ func (t *Transport) PacketCh() <-chan *memberlist.Packet {
 // revive:disable:cognitive-complexity
 
 // udpLoop is the main routine of the UDP listening workers
-func (t *Transport) udpLoop(ctx context.Context, ln *net.UDPConn) {
+func (t *Transport) udpLoop(ctx context.Context, ln *net.UDPConn) error {
 	// revive:enable:cognitive-complexity
 
 	// we explicitly close the listener because we could be interrupted
@@ -75,7 +75,7 @@ func (t *Transport) udpLoop(ctx context.Context, ln *net.UDPConn) {
 			// error
 			if t.cancelled.Load() {
 				// shutdown in process, ignore error and exit
-				return
+				return nil
 			}
 
 			t.error(err).
@@ -103,13 +103,14 @@ func (t *Transport) udpLoop(ctx context.Context, ln *net.UDPConn) {
 			case t.packetCh <- msg:
 				// continue
 			case <-ctx.Done():
+				err := ctx.Err()
 				// cancelled
-				t.error(ctx.Err()).
+				t.error(err).
 					WithField(ListenerAddrLabel, ln.LocalAddr()).
 					WithField(RemoteAddrLabel, addr).
 					WithField(PacketSizeLabel, n).
 					Print("UDP packet discarded")
-				return
+				return err
 			}
 		}
 	}

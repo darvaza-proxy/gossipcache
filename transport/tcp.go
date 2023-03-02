@@ -33,7 +33,7 @@ func (t *Transport) StreamCh() <-chan net.Conn {
 // revive:disable:cognitive-complexity
 
 // tcpLoop is the main routine of the TCP listening workers
-func (t *Transport) tcpLoop(ctx context.Context, ln *net.TCPListener) {
+func (t *Transport) tcpLoop(ctx context.Context, ln *net.TCPListener) error {
 	// revive:enable:cognitive-complexity
 
 	// we explicitly close the listener because we could be interrupted
@@ -61,18 +61,19 @@ func (t *Transport) tcpLoop(ctx context.Context, ln *net.TCPListener) {
 			case t.streamCh <- conn:
 				// continue
 			case <-ctx.Done():
+				err := ctx.Err()
 				// sorry pal, we are cancelled
-				t.error(ctx.Err()).
+				t.error(err).
 					WithField(ListenerAddrLabel, ln.Addr()).
 					WithField(RemoteAddrLabel, conn.RemoteAddr()).
 					Print("Connection Terminated")
 
 				_ = conn.Close()
-				return
+				return err
 			}
 		} else if t.cancelled.Load() {
 			// shutdown in process, ignore error and exit
-			return
+			return nil
 		} else {
 			if errorDelay == 0 {
 				// first
@@ -96,7 +97,7 @@ func (t *Transport) tcpLoop(ctx context.Context, ln *net.TCPListener) {
 				// let's wait a bit
 			case <-ctx.Done():
 				// cancelled
-				return
+				return ctx.Err()
 			}
 		}
 	}

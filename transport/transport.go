@@ -5,7 +5,6 @@ import (
 	"context"
 	"errors"
 	"net"
-	"sync"
 	"sync/atomic"
 
 	"github.com/darvaza-proxy/core"
@@ -22,7 +21,7 @@ var (
 // an slog.Logger, Cancellable Context, ListenTCP/ListenUDP
 // callbacks
 type Transport struct {
-	wg        sync.WaitGroup
+	wg        core.WaitGroup
 	cancel    context.CancelFunc
 	cancelled atomic.Bool
 	log       slog.Logger
@@ -77,16 +76,13 @@ func New(config *Config) (*Transport, error) {
 		tcpLn := t.tcpListeners[i]
 		udpLn := t.udpListeners[i]
 
-		t.wg.Add(2)
+		t.wg.Go(func() error {
+			return t.tcpLoop(ctx, tcpLn)
+		})
 
-		go func() {
-			defer t.wg.Done()
-			t.tcpLoop(ctx, tcpLn)
-		}()
-		go func() {
-			defer t.wg.Done()
-			t.udpLoop(ctx, udpLn)
-		}()
+		t.wg.Go(func() error {
+			return t.udpLoop(ctx, udpLn)
+		})
 	}
 
 	return t, nil
