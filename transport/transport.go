@@ -5,7 +5,6 @@ import (
 	"context"
 	"errors"
 	"net"
-	"net/netip"
 	"sync"
 	"sync/atomic"
 
@@ -145,41 +144,31 @@ func (t *Transport) FinalAdvertiseAddr(ip string, port int) (net.IP, int, error)
 }
 
 func parseGivenAdvertiseAddr(ip string, port int) (net.IP, int, error) {
-	addr, err := core.ParseAddr(ip)
+	addr, err := core.ParseNetIP(ip)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	return addrAsNetIP(addr.Unmap()), port, nil
+	return addr, port, nil
 }
 
 func getAdvertiseAddr() (net.IP, error) {
-	var addrs []netip.Addr
+	var addrs []net.IP
 	var err error
 
 	// listening all addresses, pick one
 	ifaces, _ := core.GetInterfacesNames("lo")
 	if len(ifaces) > 0 {
-		addrs, _ = core.GetIPAddresses(ifaces...)
+		addrs, _ = core.GetNetIPAddresses(ifaces...)
 	}
 	if len(addrs) == 0 {
-		addrs, err = core.GetIPAddresses()
+		addrs, err = core.GetNetIPAddresses()
 	}
 
 	if len(addrs) > 0 {
 		// pick the first
-		return addrAsNetIP(addrs[0].Unmap()), nil
+		return addrs[0], nil
 	}
 
 	return nil, err
-}
-
-func addrAsNetIP(addr netip.Addr) net.IP {
-	if addr.Is4() {
-		a4 := addr.As4()
-		return a4[:]
-	}
-
-	a16 := addr.As16()
-	return a16[:]
 }
