@@ -62,6 +62,17 @@ func validatePair(tcp *net.TCPAddr, udp *net.UDPAddr, port int) error {
 	return err
 }
 
+// Close closes all listeners
+func (lsn *Listeners) Close() error {
+	for _, lsn := range lsn.TCP {
+		_ = lsn.Close()
+	}
+	for _, lsn := range lsn.UDP {
+		_ = lsn.Close()
+	}
+	return nil
+}
+
 func newListeners(config *Config) (*Listeners, error) {
 	// parse BindAddr
 	addrs, err := config.Addresses()
