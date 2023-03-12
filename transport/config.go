@@ -99,15 +99,15 @@ func (cfg *Config) getStringIPAddresses() ([]string, error) {
 // Addresses returns the BindAddress list parsed into net.IP
 func (cfg *Config) Addresses() ([]net.IP, error) {
 	n := len(cfg.BindAddress)
-	out := make([]net.IP, n)
+	out := make([]net.IP, 0, n)
 
-	for i, s := range cfg.BindAddress {
+	for _, s := range cfg.BindAddress {
 		ip, err := core.ParseNetIP(s)
 		if err != nil {
 			return out, err
 		}
 
-		out[i] = ip
+		out = append(out, ip)
 	}
 
 	return out, nil

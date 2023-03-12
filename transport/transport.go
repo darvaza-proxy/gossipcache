@@ -33,13 +33,37 @@ type Transport struct {
 	packetCh     chan *memberlist.Packet
 }
 
-// revive:disable:cognitive-complexity
+// NewWithListeners creates a new transport using preallocated listeners.
+// If it fails, it's your responsibility to close them.
+// If succeeds, the created transport needs to be explicitly Close()ed
+// once it's no longer used
+func NewWithListeners(config *Config, lsn *Listeners) (*Transport, error) {
+	if config == nil {
+		config = &Config{}
+	}
+
+	addrs, port, err := lsn.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	// update config
+	config.BindInterface = nil
+	config.BindAddress = addrs
+	config.BindPort = port
+
+	if err := config.SetDefaults(); err != nil {
+		return nil, err
+	}
+
+	return newTransport(config, lsn)
+}
 
 // New creates a new Transport based on the given configuration
 // or defaults.
+// If succeeds, the created transport needs to be explicitly Close()ed
+// once it's no longer used
 func New(config *Config) (*Transport, error) {
-	// revive:enable:cognitive-complexity
-
 	if config == nil {
 		config = &Config{}
 	}
@@ -49,6 +73,10 @@ func New(config *Config) (*Transport, error) {
 		return nil, err
 	}
 
+	return newTransport(config, nil)
+}
+
+func newTransport(config *Config, lsn *Listeners) (*Transport, error) {
 	ctx, cancel := context.WithCancel(config.Context)
 
 	t := &Transport{
@@ -60,18 +88,17 @@ func New(config *Config) (*Transport, error) {
 		packetCh: make(chan *memberlist.Packet),
 	}
 
-	// parse BindAddr
-	addrs, err := config.Addresses()
-	if err != nil {
-		return nil, err
+	if lsn == nil {
+		var err error
+
+		lsn, err = newListeners(config)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	// listen ports
-	if n, err := t.listenConfig(addrs, config); err != nil {
-		return nil, err
-	} else if n < 1 {
-		return nil, errors.New("no listening ports")
-	}
+	t.tcpListeners = lsn.TCP
+	t.udpListeners = lsn.UDP
 
 	t.wg.OnError(func(err error) error {
 		var c core.Catcher
