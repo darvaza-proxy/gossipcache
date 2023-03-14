@@ -2,6 +2,11 @@ module darvaza.org/gossipcache
 
 go 1.19
 
+replace (
+	darvaza.org/cache => ../cache
+	darvaza.org/cache/x/groupcache => ../cache/x/groupcache
+)
+
 require (
 	darvaza.org/cache v0.2.0
 	darvaza.org/cache/x/groupcache v0.1.2
