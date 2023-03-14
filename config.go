@@ -3,6 +3,7 @@ package gossipcache
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"net"
 	"net/netip"
@@ -51,6 +52,9 @@ type Config struct {
 	// ClientTLSConfig is the tls.Config to be used when connecting to other
 	// nodes of the cluster when https scheme is used
 	ClientTLSConfig *tls.Config
+
+	// AcceptedRootCA enables mTLS for CacheBasePath
+	AcceptedRootCA *x509.CertPool
 }
 
 // revive:disable:cyclomatic
