@@ -4,9 +4,9 @@ import (
 	"context"
 	"net"
 
-	"github.com/darvaza-proxy/core"
-	"github.com/darvaza-proxy/slog"
-	"github.com/darvaza-proxy/slog/handlers/discard"
+	"darvaza.org/core"
+	"darvaza.org/slog"
+	"darvaza.org/slog/handlers/discard"
 )
 
 const (

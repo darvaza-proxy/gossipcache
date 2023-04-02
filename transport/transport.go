@@ -7,8 +7,8 @@ import (
 	"net"
 	"sync/atomic"
 
-	"github.com/darvaza-proxy/core"
-	"github.com/darvaza-proxy/slog"
+	"darvaza.org/core"
+	"darvaza.org/slog"
 	"github.com/hashicorp/memberlist"
 )
 

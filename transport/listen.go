@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/darvaza-proxy/core"
+	"darvaza.org/core"
 )
 
 var (

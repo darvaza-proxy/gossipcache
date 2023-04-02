@@ -3,7 +3,7 @@ package gossipcache
 import (
 	"github.com/mailgun/groupcache/v2"
 
-	"github.com/darvaza-proxy/slog"
+	"darvaza.org/slog"
 )
 
 var (

@@ -1,6 +1,6 @@
 package transport
 
-import "github.com/darvaza-proxy/slog"
+import "darvaza.org/slog"
 
 const (
 	// Subsystem indicates our name on the logs

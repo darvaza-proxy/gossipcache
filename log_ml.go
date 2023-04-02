@@ -5,7 +5,7 @@ import (
 
 	"github.com/hashicorp/memberlist"
 
-	"github.com/darvaza-proxy/slog"
+	"darvaza.org/slog"
 )
 
 // NewMemberlistLogger creates a standard logger to consume
