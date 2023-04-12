@@ -3,11 +3,12 @@ module darvaza.org/gossipcache
 go 1.19
 
 require (
+	darvaza.org/cache v0.2.0
+	darvaza.org/cache/x/groupcache v0.1.2
 	darvaza.org/core v0.9.2
-	darvaza.org/slog v0.5.0
+	darvaza.org/slog v0.5.1
 	darvaza.org/slog/handlers/discard v0.4.0
 	github.com/hashicorp/memberlist v0.5.0
-	github.com/mailgun/groupcache/v2 v2.4.2
 	github.com/mgechev/revive v1.3.1
 )
 
@@ -19,7 +20,6 @@ require (
 	github.com/fatih/structtag v1.2.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/btree v1.1.2 // indirect
-	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
 	github.com/hashicorp/go-msgpack v0.5.5 // indirect
@@ -27,6 +27,7 @@ require (
 	github.com/hashicorp/go-sockaddr v1.0.2 // indirect
 	github.com/hashicorp/go-uuid v1.0.1 // indirect
 	github.com/hashicorp/golang-lru v0.5.1 // indirect
+	github.com/mailgun/groupcache/v2 v2.4.2 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.18 // indirect
 	github.com/mattn/go-runewidth v0.0.14 // indirect
