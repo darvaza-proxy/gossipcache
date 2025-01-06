@@ -7,9 +7,9 @@ toolchain go1.23.4
 require (
 	darvaza.org/cache v0.2.0
 	darvaza.org/cache/x/groupcache v0.1.2
-	darvaza.org/core v0.15.1
+	darvaza.org/core v0.15.2
 	darvaza.org/slog v0.5.14
-	darvaza.org/slog/handlers/discard v0.4.0
+	darvaza.org/slog/handlers/discard v0.4.16
 	github.com/hashicorp/memberlist v0.5.1
 	github.com/mgechev/revive v1.3.1
 )
