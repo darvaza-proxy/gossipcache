@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"net/netip"
 
 	"darvaza.org/core"
 )
@@ -21,45 +22,77 @@ type Listeners struct {
 // Validate checks if the listeners are suitable, and returns
 // the addresses and port used
 func (lsn *Listeners) Validate() ([]string, int, error) {
-	var port int
-	var addrs []string
-	var err error
-
 	if lsn == nil || len(lsn.TCP) == 0 || len(lsn.UDP) == 0 ||
 		len(lsn.TCP) != len(lsn.UDP) {
 		return nil, 0, errBadSet
 	}
 
+	return lsn.doValidate()
+}
+
+func (lsn *Listeners) doValidate() ([]string, int, error) {
+	var addrs = make([]string, 0, len(lsn.TCP))
+	var port uint16
+	var err error
+
 	for i := range lsn.TCP {
-		tcp := lsn.TCP[i].Addr().(*net.TCPAddr)
-		udp := lsn.UDP[i].LocalAddr().(*net.UDPAddr)
+		var addr string
 
-		if port == 0 {
-			port = tcp.Port
-		}
-
-		err = validatePair(tcp, udp, port)
+		addr, port, err = lsn.doValidateOne(i, port)
 		if err != nil {
 			break
 		}
 
-		addrs = append(addrs, tcp.IP.String())
+		addrs = append(addrs, addr)
 	}
 
-	return addrs, port, err
+	return addrs, int(port), err
 }
 
-func validatePair(tcp *net.TCPAddr, udp *net.UDPAddr, port int) error {
+func (lsn *Listeners) doValidateOne(i int, port uint16) (string, uint16, error) {
+	var tcp, udp netip.AddrPort
+	var ok bool
 	var err error
 
-	if port == 0 {
-		err = fmt.Errorf("invalid port: %s", tcp.String())
-	} else if !tcp.IP.Equal(udp.IP) || tcp.Port != udp.Port || tcp.Port != port {
-		err = core.Wrapf(errBadSet, "tcp:%s ≠ udp:%s (port:%v)",
-			tcp.String(), udp.String(), port)
+	aTCP := lsn.TCP[i].Addr()
+	aUDP := lsn.UDP[i].LocalAddr()
+
+	tcp, ok = core.AddrPort(aTCP)
+	if !ok {
+		err = core.NewUnreachableErrorf(1, core.ErrInvalid, "TCP[%v]:%v", i, aTCP)
+		goto fail
 	}
 
-	return err
+	udp, ok = core.AddrPort(aUDP)
+	if !ok {
+		err = core.NewUnreachableErrorf(1, core.ErrInvalid, "UDP[%v]:%v", i, aUDP)
+		goto fail
+	}
+
+	if port == 0 {
+		port = tcp.Port()
+	}
+
+	err = validatePair(tcp, udp, port)
+	if err == nil {
+		// success
+		return tcp.String(), port, nil
+	}
+
+fail:
+	return "", port, err
+}
+
+func validatePair(tcp, udp netip.AddrPort, port uint16) error {
+	switch {
+	case port == 0:
+		return fmt.Errorf("invalid port: %s", tcp.String())
+	case tcp.Compare(udp) != 0, tcp.Port() != port:
+		return core.Wrapf(errBadSet, "tcp:%s ≠ udp:%s (port:%v)",
+			tcp.String(), udp.String(), port)
+	default:
+		return nil
+	}
 }
 
 // Close closes all listeners
@@ -86,9 +119,9 @@ func newListeners(config *Config) (*Listeners, error) {
 		return nil, err
 	} else if n < 1 {
 		return nil, errors.New("no listening ports")
-	} else {
-		return lsn, nil
 	}
+
+	return lsn, nil
 }
 
 // listenConfig attempts to set up listeners on all addresses based
