@@ -177,11 +177,11 @@ func WithDefaultLocalConfig() ClusterConfigOption {
 }
 
 // WithDelegateProtocolVersion sets the Protocol versions we handle
-func WithDelegateProtocolVersion(version, min, max uint8) ClusterConfigOption {
+func WithDelegateProtocolVersion(version, minVal, maxVal uint8) ClusterConfigOption {
 	opt := func(_ *Cluster, conf *memberlist.Config) error {
 		conf.DelegateProtocolVersion = version
-		conf.DelegateProtocolMin = min
-		conf.DelegateProtocolMax = max
+		conf.DelegateProtocolMin = minVal
+		conf.DelegateProtocolMax = maxVal
 		return nil
 	}
 	return opt
