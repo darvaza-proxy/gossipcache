@@ -106,7 +106,7 @@ func newTransport(config *Config, lsn *Listeners) (*Transport, error) {
 
 		defer t.initiateShutdown()
 
-		c.Try(func() error {
+		_ = c.Try(func() error {
 			t.onError(err)
 			return nil
 		})
@@ -137,7 +137,7 @@ func newTransport(config *Config, lsn *Listeners) (*Transport, error) {
 func (t *Transport) Shutdown() error {
 	t.initiateShutdown()
 
-	t.wg.Wait()
+	_ = t.wg.Wait()
 	return nil
 }
 
