@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"net"
+	"net/netip"
 	"sync/atomic"
 
 	"darvaza.org/core"
@@ -105,7 +106,7 @@ func newTransport(config *Config, lsn *Listeners) (*Transport, error) {
 
 		defer t.initiateShutdown()
 
-		c.Try(func() error {
+		_ = c.Try(func() error {
 			t.onError(err)
 			return nil
 		})
@@ -136,7 +137,7 @@ func newTransport(config *Config, lsn *Listeners) (*Transport, error) {
 func (t *Transport) Shutdown() error {
 	t.initiateShutdown()
 
-	t.wg.Wait()
+	_ = t.wg.Wait()
 	return nil
 }
 
@@ -160,51 +161,56 @@ func (t *Transport) initiateShutdown() {
 // advertise to other nodes
 func (t *Transport) FinalAdvertiseAddr(ip string, port int) (net.IP, int, error) {
 	var err error
+	var addr netip.Addr
 
 	if ip != "" {
-		// use the given address
-		return parseGivenAdvertiseAddr(ip, port)
-	}
-
-	tcpAddr := t.tcpListeners[0].Addr().(*net.TCPAddr)
-	if tcpAddr.IP.IsUnspecified() {
-		addr, err := getAdvertiseAddr()
-		if addr == nil {
-			// log failure
-			s := "Failed to get IP Address to advertise"
-			t.error(err).Print(s)
-
-			if err == nil {
-				err = errors.New(s)
-			}
-			return nil, 0, err
+		// use given
+		addr, err = core.ParseAddr(ip)
+	} else {
+		// listener address
+		lsnAddr := t.tcpListeners[0]
+		if addrPort, ok := core.AddrPort(lsnAddr); !ok {
+			err = core.NewUnreachableErrorf(0, nil, "impossible listener address: %v", lsnAddr)
+		} else {
+			addr = addrPort.Addr()
+			port = int(addrPort.Port())
 		}
-		tcpAddr.IP = addr
 	}
 
-	return tcpAddr.IP, tcpAddr.Port, err
-}
-
-func parseGivenAdvertiseAddr(ip string, port int) (net.IP, int, error) {
-	addr, err := core.ParseNetIP(ip)
-	if err != nil {
-		return nil, 0, err
+	if err == nil {
+		addr, err = t.doFinalAdvertiseAddr(addr)
+		if err == nil && addr.IsValid() {
+			return addr.AsSlice(), port, nil
+		}
 	}
 
-	return addr, port, nil
+	return t.failFinalAdvertiseAddr(err)
 }
 
-func getAdvertiseAddr() (net.IP, error) {
-	var addrs []net.IP
+func (t *Transport) failFinalAdvertiseAddr(err error) (net.IP, int, error) {
+	s := "Failed to get IP Address to advertise"
+	t.error(err).Print(s)
+	if err == nil {
+		err = errors.New(s)
+	}
+	return nil, 0, err
+}
+
+func (*Transport) doFinalAdvertiseAddr(addr netip.Addr) (netip.Addr, error) {
+	var addrs []netip.Addr
 	var err error
+
+	if addr.IsValid() && !addr.IsUnspecified() {
+		return addr, nil
+	}
 
 	// listening all addresses, pick one
 	ifaces, _ := core.GetInterfacesNames("lo")
 	if len(ifaces) > 0 {
-		addrs, _ = core.GetNetIPAddresses(ifaces...)
+		addrs, _ = core.GetIPAddresses(ifaces...)
 	}
 	if len(addrs) == 0 {
-		addrs, err = core.GetNetIPAddresses()
+		addrs, err = core.GetIPAddresses()
 	}
 
 	if len(addrs) > 0 {
@@ -212,5 +218,5 @@ func getAdvertiseAddr() (net.IP, error) {
 		return addrs[0], nil
 	}
 
-	return nil, err
+	return netip.Addr{}, err
 }
