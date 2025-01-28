@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	_ cache.Store = (*GossipCache)(nil)
+	_ cache.Store[string] = (*GossipCache)(nil)
 )
 
 // GossipCache is a groupcache cluster managed using memberlist
