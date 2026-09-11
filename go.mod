@@ -1,13 +1,13 @@
 module darvaza.org/gossipcache
 
-go 1.22
+go 1.25.0
 
 require (
-	darvaza.org/cache v0.4.0
-	darvaza.org/cache/x/groupcache v0.3.0
-	darvaza.org/core v0.16.0
-	darvaza.org/slog v0.6.0
-	darvaza.org/slog/handlers/discard v0.5.0
+	darvaza.org/cache v0.5.0
+	darvaza.org/cache/x/groupcache v0.4.0
+	darvaza.org/core v0.21.3
+	darvaza.org/slog v0.10.0
+	darvaza.org/slog/handlers/discard v0.8.0
 	github.com/hashicorp/memberlist v0.5.1
 )
 
@@ -27,11 +27,11 @@ require (
 	github.com/sean-/seed v0.0.0-20170313163322-e2103e2c3529 // indirect
 	github.com/segmentio/fasthash v1.0.3 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
-	golang.org/x/mod v0.17.0 // indirect
-	golang.org/x/net v0.34.0 // indirect
-	golang.org/x/sync v0.10.0 // indirect
-	golang.org/x/sys v0.29.0 // indirect
-	golang.org/x/text v0.21.0 // indirect
-	golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d // indirect
-	google.golang.org/protobuf v1.35.2 // indirect
+	golang.org/x/mod v0.37.0 // indirect
+	golang.org/x/net v0.57.0 // indirect
+	golang.org/x/sync v0.22.0 // indirect
+	golang.org/x/sys v0.47.0 // indirect
+	golang.org/x/text v0.40.0 // indirect
+	golang.org/x/tools v0.47.0 // indirect
+	google.golang.org/protobuf v1.36.5 // indirect
 )
